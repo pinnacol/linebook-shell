@@ -8,7 +8,7 @@ Shell basics for {Linecook}[http://gemcutter.org/gems/linecook].
 
 == Installation
 
-LinebookShell is available as a gem on {Gemcutter}[http://gemcutter.org/gems/linebook]
+LinebookShell is available as a gem on {Gemcutter}[http://gemcutter.org/gems/linebook-shell]
 
   % gem install linebook-shell
 
