@@ -1,0 +1,18 @@
+= LinebookShell
+
+Shell basics for {Linecook}[http://gemcutter.org/gems/linecook].
+
+== Description
+
+== Usage
+
+== Installation
+
+LinebookShell is available as a gem on {Gemcutter}[http://gemcutter.org/gems/linebook]
+
+  % gem install linebook-shell
+
+== Info 
+
+Developer:: {Simon Chiang}[http://bahuvrihi.wordpress.com]
+License:: {MIT-Style}[link:files/License_txt.html]
