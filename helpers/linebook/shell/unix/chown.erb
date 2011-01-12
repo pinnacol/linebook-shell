@@ -1,4 +1,4 @@
-(target, user=nil, group=nil)
+(user, group, target)
 --
 <% if user || group %>
 chown <%= user %>:<%= group %> "<%= target %>"

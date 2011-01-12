@@ -35,7 +35,7 @@ cat<% sources.each do |source| %> "<%= source %>"<% end %>
 END_OF_TEMPLATE
 # :startdoc:
 
-# 
+# Executes 'cat' with the sources.
 # ==== CAT ERB
 #   cat<% sources.each do |source| %> "<%= source %>"<% end %>
 def cat(*sources)
@@ -107,7 +107,7 @@ END_OF_TEMPLATE
 #   chmod <%= mode %> "<%= target %>"
 #   <% check_status %>
 #   <% end %>
-def chmod(target, mode=nil)
+def chmod(mode, target)
   eval(CHMOD, binding, __FILE__, CHMOD_LINE)
   nil
 end
@@ -134,7 +134,7 @@ END_OF_TEMPLATE
 #   chown <%= user %>:<%= group %> "<%= target %>"
 #   <% check_status %>
 #   <% end %>
-def chown(target, user=nil, group=nil)
+def chown(user, group, target)
   eval(CHOWN, binding, __FILE__, CHOWN_LINE)
   nil
 end
