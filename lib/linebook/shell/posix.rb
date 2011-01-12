@@ -104,38 +104,16 @@ end
 # :stopdoc:
 SET_LINE = __LINE__ + 2
 SET = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
-<% if block_given? %>
-<% reset_file = "LINECOOK_RESET_OPTIONS_#{next_count}" %>
-<%= reset_file %>=`mktemp /tmp/line_cook_reset_fileXXXXXX`
-set -o | sed 's/\(.*\)	on/set -o \1/' | sed 's/\(.*\)	off/set +o \1/' > $<%= reset_file %>
-<% end %><% options.keys.sort_by {|opt| opt.to_s }.each do |opt| %>
+<% options.keys.sort_by {|opt| opt.to_s }.each do |opt| %>
 set <%= options[opt] ? '-' : '+' %>o <%= opt %>
 <% end %>
-<% if block_given? %>
-
-<% indent { yield }  %>
-
-source $<%= reset_file %>
-<% end %>
-
 END_OF_TEMPLATE
 # :startdoc:
 
-# Sets bash options for the duration of a block.  If no block is given,
-# set simply sets the options as specified.
+# Sets the options to on (true) or off (false) as specified.
 # ==== SET ERB
-#   <% if block_given? %>
-#   <% reset_file = "LINECOOK_RESET_OPTIONS_#{next_count}" %>
-#   <%= reset_file %>=`mktemp /tmp/line_cook_reset_fileXXXXXX`
-#   set -o | sed 's/\(.*\)	on/set -o \1/' | sed 's/\(.*\)	off/set +o \1/' > $<%= reset_file %>
-#   <% end %><% options.keys.sort_by {|opt| opt.to_s }.each do |opt| %>
+#   <% options.keys.sort_by {|opt| opt.to_s }.each do |opt| %>
 #   set <%= options[opt] ? '-' : '+' %>o <%= opt %>
-#   <% end %>
-#   <% if block_given? %>
-#   
-#   <% indent { yield }  %>
-#   
-#   source $<%= reset_file %>
 #   <% end %>
 def set(options)
   eval(SET, binding, __FILE__, SET_LINE)

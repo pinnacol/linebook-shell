@@ -120,4 +120,36 @@ class PosixTest < Test::Unit::TestCase
       only_if('condition') { target << 'content' }
     end
   end
+  
+  #
+  # set_options test
+  #
+  
+  def test_set_options_writes_set_operations_to_set_options
+    assert_recipe %q{
+      set -o verbose
+      set +o xtrace
+    } do
+      set_options(:verbose => true, :xtrace => false)
+    end
+  end
+  
+  def test_set_options_functions_to_set_options
+    path = script do
+      target.puts 'echo a'
+      set_options(:verbose => true)
+      target.puts 'echo b'
+      set_options(:verbose => false)
+      target.puts 'echo c'
+    end
+    
+    sh_test %Q{
+      % sh '#{path}'
+      a
+      echo b
+      b
+      set +o verbose
+      c
+    }
+  end
 end
