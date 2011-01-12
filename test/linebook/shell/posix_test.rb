@@ -8,6 +8,14 @@ class PosixTest < Test::Unit::TestCase
     super.extend Linebook::Shell::Posix
   end
   
+  def script(&block)
+    recipe = setup_recipe
+    recipe.result(&block)
+    
+    registry = package.export File.join(method_dir, 'packages')
+    registry[recipe.target_name]
+  end
+  
   #
   # comment test
   #
@@ -66,6 +74,20 @@ class PosixTest < Test::Unit::TestCase
     } do
       heredoc(:indent => true) {}
     end
+  end
+  
+  def test_heredoc_works_as_a_heredoc
+    path = script do
+      target << 'cat '
+      heredoc {
+        target.puts 'content'
+      }
+    end
+    
+    sh_test %Q{
+      % sh '#{path}'
+      content
+    }
   end
   
   #
