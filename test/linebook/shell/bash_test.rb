@@ -17,7 +17,6 @@ class BashTest < Test::Unit::TestCase
   def test_su_wraps_block_content_in_a_recipe
     assert_recipe(%{
       su root "$LINECOOK_DIR/recipe.d/root"
-      check_status 0 $? $LINENO
       
     }){ 
       su('root') do 
@@ -32,7 +31,6 @@ class BashTest < Test::Unit::TestCase
     assert_recipe %q{
       # +A
       su a "$LINECOOK_DIR/recipe.d/a"
-      check_status 0 $? $LINENO
       
       # -A
     } do
@@ -55,7 +53,6 @@ class BashTest < Test::Unit::TestCase
     assert_output_equal %q{
       # +B
       su b "$LINECOOK_DIR/recipe.d/b"
-      check_status 0 $? $LINENO
       
       # -B
     }, package.content('recipe.d/a')
@@ -63,7 +60,6 @@ class BashTest < Test::Unit::TestCase
     assert_output_equal %q{
       # +C
       su c "$LINECOOK_DIR/recipe.d/c"
-      check_status 0 $? $LINENO
       
       # -C
     }, package.content('recipe.d/b')

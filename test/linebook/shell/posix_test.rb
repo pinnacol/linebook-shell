@@ -5,13 +5,25 @@ class PosixTest < Test::Unit::TestCase
   include Linecook::Test
   
   def setup_recipe
-        setup_package  # hack
+    setup_package  # hack
     super.extend Linebook::Shell::Posix
   end
   
   #
   # check_status test
   #
+  
+  def test_check_status_only_prints_if_check_status_function_is_present
+    assert_recipe('') { check_status } 
+    
+    assert_recipe %Q{
+      function check_status { if [ $1 -ne $2 ]; then echo "[$2] $0:$3"; exit $2; fi }
+      check_status 0 $? $LINENO
+    } do
+      check_status_function
+      check_status
+    end
+  end
   
   def test_check_status_silently_passes_if_error_status_is_as_expected
     script_test %Q{

@@ -9,14 +9,21 @@ module Posix
 # :stopdoc:
 CHECK_STATUS_LINE = __LINE__ + 2
 CHECK_STATUS = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
+<% if @check_status %>
 check_status <%= status %> $? $LINENO
+<% end %>
 END_OF_TEMPLATE
 # :startdoc:
 
-# Adds a check after a command that ensures the status is as indicated
+# Adds a check that ensures the last exit status is as indicated. Note that no
+# check will be added unless check_status_function is added beforehand.
+# 
 # ==== CHECK_STATUS ERB
+#   <% if @check_status %>
 #   check_status <%= status %> $? $LINENO
+#   <% end %>
 def check_status(status=0)
+  @check_status ||= false
   eval(CHECK_STATUS, binding, __FILE__, CHECK_STATUS_LINE)
   nil
 end
@@ -37,7 +44,8 @@ END_OF_TEMPLATE
 # Adds the check status function.
 # ==== CHECK_STATUS_FUNCTION ERB
 #   function check_status { if [ $1 -ne $2 ]; then echo "[$2] $0:$3"; exit $2; fi }
-def check_status_function
+def check_status_function()
+  @check_status = true
   eval(CHECK_STATUS_FUNCTION, binding, __FILE__, CHECK_STATUS_FUNCTION_LINE)
   nil
 end

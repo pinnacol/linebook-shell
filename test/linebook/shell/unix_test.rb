@@ -22,10 +22,7 @@ class UnixTest < Test::Unit::TestCase
     File.chmod(0644, path)
     assert_equal "100644", sprintf("%o", File.stat(path).mode)
     
-    script_path = script { 
-      check_status_function
-      chmod 600, path 
-    }
+    script_path = script { chmod 600, path }
     sh "sh #{script_path}"
     
     assert_equal "100600", sprintf("%o", File.stat(path).mode)
@@ -45,7 +42,6 @@ class UnixTest < Test::Unit::TestCase
   def test_chown_sets_up_file_chown
     assert_recipe_match %q{
       chown user:group "target"
-      :...:
     } do
       chown 'user', 'group', 'target'
     end
