@@ -7,24 +7,16 @@ module Unix
 require 'linebook/shell/posix'
 include Posix
 
-DEFAULT_SHELL_PATH = '/bin/sh'
-DEFAULT_ENV_PATH   = '/usr/bin/env'
-
-TARGET_PATH = '$LINECOOK_DIR/%s'
-
-attr_writer :shell_path
-attr_writer :env_path
-
 def shell_path
-  @shell_path ||= DEFAULT_SHELL_PATH
+  @shell_path ||= '/bin/sh'
 end
 
 def env_path
-  @env_path ||= DEFAULT_ENV_PATH
+  @env_path ||= '/usr/bin/env'
 end
 
 def target_path(source_path)
-  TARGET_PATH % super(source_path)
+  '$LINECOOK_DIR/%s' % super(source_path)
 end
 
 def close
@@ -306,7 +298,6 @@ END_OF_TEMPLATE
 
 # == Notes
 # Use dev/null on set such that no options will not dump ENV into stdout.
-# 
 # ==== SHEBANG ERB
 #   #! <%= shell_path %>
 #   
@@ -334,9 +325,7 @@ END_OF_TEMPLATE
 #   
 #   set $LINECOOK_OPTIONS > /dev/null
 #   <%= section " #{target_name} " %>
-def shebang(shell_path=DEFAULT_SHELL_PATH, env_path=DEFAULT_ENV_PATH)
-  @shell_path = shell_path
-  @env_path  = env_path
+def shebang
   eval(SHEBANG, binding, __FILE__, SHEBANG_LINE)
   nil
 end

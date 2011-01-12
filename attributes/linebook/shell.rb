@@ -1,0 +1,1 @@
+attrs[:linebook][:shell][:module] = 'linebook/shell/bash'

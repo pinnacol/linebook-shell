@@ -13,12 +13,12 @@ class ShellTest < Test::Unit::TestCase
   # shebang test
   #
   
-  def test_shebang_adds_shebang_line
+  def test_shebang_adds_shebang_line_for_bash
     assert_recipe_match %q{
       #! /bin/bash
       :...:
     } do
-      shebang '/bin/bash'
+      shebang
     end
   end
 end

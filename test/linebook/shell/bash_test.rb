@@ -5,7 +5,9 @@ class BashTest < Test::Unit::TestCase
   include Linecook::Test
   
   def setup_recipe
-    super.extend Linebook::Shell::Bash
+    recipe = super
+    recipe.extend Linebook::Shell
+    recipe.extend Linebook::Shell::Bash
   end
   
   #
