@@ -19,6 +19,27 @@ def target_path(source_path)
   '$LINECOOK_DIR/%s' % super(source_path)
 end
 
+def to_opts(opts)
+  if opts.nil? || opts.empty?
+    return ''
+  end
+  
+  args = [nil]
+  
+  opts.keys.sort.each do |key|
+    opt = key.to_s
+    
+    unless opt[0] == ?-
+      opt = opt.length == 1 ? "-#{opt}" : "--#{opt}"
+    end
+    
+    args << opt
+    args << opts[key]
+  end
+  
+  args.join(' ')
+end
+
 def close
   unless closed?
     section " (#{target_name}) "
@@ -122,6 +143,27 @@ def _echo(*args, &block) # :nodoc:
   capture { echo(*args, &block) }
 end
 
+########################## exists_check ##########################
+
+# :stopdoc:
+EXISTS_CHECK_LINE = __LINE__ + 2
+EXISTS_CHECK = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
+[ -e "<%= path %>" ]
+END_OF_TEMPLATE
+# :startdoc:
+
+# 
+# ==== EXISTS_CHECK ERB
+#   [ -e "<%= path %>" ]
+def exists?(path)
+  eval(EXISTS_CHECK, binding, __FILE__, EXISTS_CHECK_LINE)
+  nil
+end
+
+def _exists?(*args, &block) # :nodoc:
+  capture { exists?(*args, &block) }
+end
+
 ################################## ln_s ##################################
 
 # :stopdoc:
@@ -175,18 +217,18 @@ end
 # :stopdoc:
 RM_LINE = __LINE__ + 2
 RM = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
-<% only_if %Q{ls -l "#{path}"} do %>
-rm <% if opts %><%= opts %> <% end %>"<%= path %>"
+<% only_if _exists?(path) do %>
+rm<%= to_opts(opts) %> "<%= path %>"
 <% end %>
 END_OF_TEMPLATE
 # :startdoc:
 
 # 
 # ==== RM ERB
-#   <% only_if %Q{ls -l "#{path}"} do %>
-#   rm <% if opts %><%= opts %> <% end %>"<%= path %>"
+#   <% only_if _exists?(path) do %>
+#   rm<%= to_opts(opts) %> "<%= path %>"
 #   <% end %>
-def rm(path, opts=nil)
+def rm(path, opts={})
   eval(RM, binding, __FILE__, RM_LINE)
   nil
 end

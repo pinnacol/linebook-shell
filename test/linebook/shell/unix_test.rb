@@ -66,4 +66,38 @@ class UnixTest < Test::Unit::TestCase
     
     assert_equal 'content', package.content('child')
   end
+  
+  #
+  # rm test
+  #
+  
+  def test_rm_removes_a_file_if_present
+    target = file('target')
+    assert_equal true, File.exists?(target)
+    
+    script_test('% sh $SCRIPT') { rm target }
+    assert_equal false, File.exists?(target)
+  end
+  
+  def test_rm_removes_with_options
+    a = file('target/a')
+    b = file('target/b')
+    target = file('target')
+    
+    script_test('% sh $SCRIPT') { rm target, :r => true }
+    assert_equal false, File.exists?(target)
+  end
+  
+  def test_rm_fails_if_it_cant_remove
+    a = file('target/a')
+    b = file('target/b')
+    target = file('target')
+    
+    script_test %Q{
+      % sh $SCRIPT
+      rm: #{target}: is a directory
+    } do
+      rm target
+    end
+  end
 end
