@@ -5,15 +5,46 @@ class PosixTest < Test::Unit::TestCase
   include Linecook::Test
   
   def setup_recipe
+        setup_package  # hack
     super.extend Linebook::Shell::Posix
   end
   
-  def script(&block)
-    recipe = setup_recipe
-    recipe.result(&block)
+  #
+  # check_status test
+  #
+  
+  def test_check_status_silently_passes_if_error_status_is_as_expected
+    script_test %Q{
+      % sh $SCRIPT
+    } do
+      check_status_function
+      
+      target.puts 'true'
+      check_status
+      
+      target.puts 'false'
+      check_status 1
+    end
+  end
+  
+  def test_check_status_exits_with_error_status_if_status_is_not_as_expected
+    script_test %Q{
+      % sh $SCRIPT
+      [0] #{method_dir}/packages/recipe:3
+    } do
+      check_status_function
+      target.puts 'true'
+      check_status 1
+    end
     
-    registry = package.export File.join(method_dir, 'packages')
-    registry[recipe.target_name]
+    script_test %Q{
+      % sh $SCRIPT
+      [1] #{method_dir}/packages/recipe:3
+    } do
+      check_status_function
+      target.puts 'false'
+      check_status
+    end
   end
   
   #

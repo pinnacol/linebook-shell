@@ -47,48 +47,6 @@ def _cat(*args, &block) # :nodoc:
   capture { cat(*args, &block) }
 end
 
-########################## check_status ##########################
-
-# :stopdoc:
-CHECK_STATUS_LINE = __LINE__ + 2
-CHECK_STATUS = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
-check_status <%= status %> $? $LINENO
-END_OF_TEMPLATE
-# :startdoc:
-
-# Adds a check after a command that ensures the status is as indicated
-# ==== CHECK_STATUS ERB
-#   check_status <%= status %> $? $LINENO
-def check_status(status=0)
-  eval(CHECK_STATUS, binding, __FILE__, CHECK_STATUS_LINE)
-  nil
-end
-
-def _check_status(*args, &block) # :nodoc:
-  capture { check_status(*args, &block) }
-end
-
-################# check_status_function #################
-
-# :stopdoc:
-CHECK_STATUS_FUNCTION_LINE = __LINE__ + 2
-CHECK_STATUS_FUNCTION = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
-function check_status { if [ $1 -ne $2 ]; then echo "[$2] $0:$3"; exit $2; fi }
-END_OF_TEMPLATE
-# :startdoc:
-
-# Adds the check status function.
-# ==== CHECK_STATUS_FUNCTION ERB
-#   function check_status { if [ $1 -ne $2 ]; then echo "[$2] $0:$3"; exit $2; fi }
-def check_status_function
-  eval(CHECK_STATUS_FUNCTION, binding, __FILE__, CHECK_STATUS_FUNCTION_LINE)
-  nil
-end
-
-def _check_status_function(*args, &block) # :nodoc:
-  capture { check_status_function(*args, &block) }
-end
-
 ################################# chmod #################################
 
 # :stopdoc:
@@ -152,7 +110,7 @@ echo '<%= args.join(" ") %>'
 END_OF_TEMPLATE
 # :startdoc:
 
-# Echos input
+# Echos inputs.
 # ==== ECHO ERB
 #   echo '<%= args.join(" ") %>'
 def echo(*args)
