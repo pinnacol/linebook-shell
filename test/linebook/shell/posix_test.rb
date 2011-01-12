@@ -135,21 +135,19 @@ class PosixTest < Test::Unit::TestCase
   end
   
   def test_set_options_functions_to_set_options
-    path = script do
+    script_test %Q{
+      % sh $SCRIPT
+      a
+      echo b
+      b
+      set +o verbose
+      c
+    } do
       target.puts 'echo a'
       set_options(:verbose => true)
       target.puts 'echo b'
       set_options(:verbose => false)
       target.puts 'echo c'
     end
-    
-    sh_test %Q{
-      % sh '#{path}'
-      a
-      echo b
-      b
-      set +o verbose
-      c
-    }
   end
 end
