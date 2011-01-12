@@ -60,6 +60,18 @@ class PosixTest < Test::Unit::TestCase
   end
   
   #
+  # cmd test
+  #
+  
+  def test_cmd_formats_a_generalized_command
+    assert_recipe %q{
+      command_name -a --bc "one" "two" "three"
+    } do
+      cmd 'command_name', '-a', '--bc', 'one', 'two', 'three'
+    end
+  end
+  
+  #
   # comment test
   #
   

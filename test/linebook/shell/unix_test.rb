@@ -55,6 +55,46 @@ class UnixTest < Test::Unit::TestCase
   end
   
   #
+  # cp test
+  #
+  
+  def test_cp
+    assert_recipe %q{
+      cp "source" "target"
+    } do
+      cp 'source', 'target'
+    end
+  end
+  
+  def test_cp_r
+    assert_recipe %q{
+      cp -r "source" "target"
+    } do
+      cp_r 'source', 'target'
+    end
+  end
+  
+  #
+  # ln test
+  #
+  
+  def test_ln
+    assert_recipe %q{
+      ln "source" "target"
+    } do
+      ln 'source', 'target'
+    end
+  end
+  
+  def test_ln_s
+    assert_recipe %q{
+      ln -s "source" "target"
+    } do
+      ln_s 'source', 'target'
+    end
+  end
+  
+  #
   # recipe test
   #
   
@@ -79,25 +119,27 @@ class UnixTest < Test::Unit::TestCase
     assert_equal false, File.exists?(target)
   end
   
-  def test_rm_removes_with_options
-    a = file('target/a')
-    b = file('target/b')
-    target = file('target')
-    
-    script_test('% sh $SCRIPT') { rm target, :r => true }
-    assert_equal false, File.exists?(target)
+  def test_rm
+    assert_recipe %q{
+      rm "target"
+    } do
+      rm 'target'
+    end
   end
   
-  def test_rm_fails_if_it_cant_remove
-    a = file('target/a')
-    b = file('target/b')
-    target = file('target')
-    
-    script_test %Q{
-      % sh $SCRIPT
-      rm: #{target}: is a directory
+  def test_rm_r
+    assert_recipe %q{
+      rm -r "target"
     } do
-      rm target
+      rm_r 'target'
+    end
+  end
+  
+  def test_rm_rf
+    assert_recipe %q{
+      rm -rf "target"
+    } do
+      rm_rf 'target'
     end
   end
 end

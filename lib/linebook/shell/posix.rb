@@ -4,6 +4,9 @@ require 'erb'
 module Linebook
 module Shell
 module Posix
+def quote(arg)
+  "\"#{arg}\""
+end
 ########################## check_status ##########################
 
 # :stopdoc:
@@ -52,6 +55,32 @@ end
 
 def _check_status_function(*args, &block) # :nodoc:
   capture { check_status_function(*args, &block) }
+end
+
+################################### cmd ###################################
+
+# :stopdoc:
+CMD_LINE = __LINE__ + 2
+CMD = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
+<%= args.join(' ') %>
+<% check_status %>
+
+END_OF_TEMPLATE
+# :startdoc:
+
+# Execute a command and check the output status.
+# ==== CMD ERB
+#   <%= args.join(' ') %>
+#   <% check_status %>
+def cmd(cmd, *args)
+  args = args.collect! {|arg| arg[0] == ?- ? arg : quote(arg) }
+  args.unshift(cmd)
+  eval(CMD, binding, __FILE__, CMD_LINE)
+  nil
+end
+
+def _cmd(*args, &block) # :nodoc:
+  capture { cmd(*args, &block) }
 end
 
 ############################### comment ###############################

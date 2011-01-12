@@ -19,27 +19,6 @@ def target_path(source_path)
   '$LINECOOK_DIR/%s' % super(source_path)
 end
 
-def to_opts(opts)
-  if opts.nil? || opts.empty?
-    return ''
-  end
-  
-  args = [nil]
-  
-  opts.keys.sort.each do |key|
-    opt = key.to_s
-    
-    unless opt[0] == ?-
-      opt = opt.length == 1 ? "-#{opt}" : "--#{opt}"
-    end
-    
-    args << opt
-    args << opts[key]
-  end
-  
-  args.join(' ')
-end
-
 def close
   unless closed?
     section " (#{target_name}) "
@@ -49,19 +28,9 @@ def close
 end
 ################################### cat ###################################
 
-# :stopdoc:
-CAT_LINE = __LINE__ + 2
-CAT = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
-cat<% sources.each do |source| %> "<%= source %>"<% end %>
-END_OF_TEMPLATE
-# :startdoc:
-
 # Executes 'cat' with the sources.
-# ==== CAT ERB
-#   cat<% sources.each do |source| %> "<%= source %>"<% end %>
 def cat(*sources)
-  eval(CAT, binding, __FILE__, CAT_LINE)
-  nil
+  cmd 'cat', *sources
 end
 
 def _cat(*args, &block) # :nodoc:
@@ -74,7 +43,7 @@ end
 CHMOD_LINE = __LINE__ + 2
 CHMOD = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
 <% if mode %>
-chmod <%= mode %> "<%= target %>"
+chmod <%= mode %> <%= quote(target) %>
 <% check_status %>
 <% end %>
 END_OF_TEMPLATE
@@ -83,7 +52,7 @@ END_OF_TEMPLATE
 # 
 # ==== CHMOD ERB
 #   <% if mode %>
-#   chmod <%= mode %> "<%= target %>"
+#   chmod <%= mode %> <%= quote(target) %>
 #   <% check_status %>
 #   <% end %>
 def chmod(mode, target)
@@ -101,7 +70,7 @@ end
 CHOWN_LINE = __LINE__ + 2
 CHOWN = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
 <% if user || group %>
-chown <%= user %>:<%= group %> "<%= target %>"
+chown <%= user %>:<%= group %> <%= quote target %>
 <% check_status %>
 <% end %>
 END_OF_TEMPLATE
@@ -110,7 +79,7 @@ END_OF_TEMPLATE
 # 
 # ==== CHOWN ERB
 #   <% if user || group %>
-#   chown <%= user %>:<%= group %> "<%= target %>"
+#   chown <%= user %>:<%= group %> <%= quote target %>
 #   <% check_status %>
 #   <% end %>
 def chown(user, group, target)
@@ -122,25 +91,47 @@ def _chown(*args, &block) # :nodoc:
   capture { chown(*args, &block) }
 end
 
-################################## echo ##################################
+#################################### cp ####################################
+
+# 
+def cp(source, target)
+  cmd 'cp', source, target
+end
+
+def _cp(*args, &block) # :nodoc:
+  capture { cp(*args, &block) }
+end
+
+################################## cp_r ##################################
+
+# 
+def cp_r(source, target)
+  cmd 'cp', '-r', source, target
+end
+
+def _cp_r(*args, &block) # :nodoc:
+  capture { cp_r(*args, &block) }
+end
+
+####################### directory_check #######################
 
 # :stopdoc:
-ECHO_LINE = __LINE__ + 2
-ECHO = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
-echo '<%= args.join(" ") %>'
+DIRECTORY_CHECK_LINE = __LINE__ + 2
+DIRECTORY_CHECK = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
+[ -d "<%= path %>" ]
 END_OF_TEMPLATE
 # :startdoc:
 
-# Echos inputs.
-# ==== ECHO ERB
-#   echo '<%= args.join(" ") %>'
-def echo(*args)
-  eval(ECHO, binding, __FILE__, ECHO_LINE)
+# 
+# ==== DIRECTORY_CHECK ERB
+#   [ -d "<%= path %>" ]
+def directory?(path)
+  eval(DIRECTORY_CHECK, binding, __FILE__, DIRECTORY_CHECK_LINE)
   nil
 end
 
-def _echo(*args, &block) # :nodoc:
-  capture { echo(*args, &block) }
+def _directory?(*args, &block) # :nodoc:
+  capture { directory?(*args, &block) }
 end
 
 ########################## exists_check ##########################
@@ -164,24 +155,43 @@ def _exists?(*args, &block) # :nodoc:
   capture { exists?(*args, &block) }
 end
 
-################################## ln_s ##################################
+############################ file_check ############################
 
 # :stopdoc:
-LN_S_LINE = __LINE__ + 2
-LN_S = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
-ln -sf "<%= source %>" "<%= target %>"
-<% check_status %>
-
+FILE_CHECK_LINE = __LINE__ + 2
+FILE_CHECK = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
+[ -f "<%= path %>" ]
 END_OF_TEMPLATE
 # :startdoc:
 
 # 
-# ==== LN_S ERB
-#   ln -sf "<%= source %>" "<%= target %>"
-#   <% check_status %>
-def ln_s(source, target)
-  eval(LN_S, binding, __FILE__, LN_S_LINE)
+# ==== FILE_CHECK ERB
+#   [ -f "<%= path %>" ]
+def file?(path)
+  eval(FILE_CHECK, binding, __FILE__, FILE_CHECK_LINE)
   nil
+end
+
+def _file?(*args, &block) # :nodoc:
+  capture { file?(*args, &block) }
+end
+
+#################################### ln ####################################
+
+# 
+def ln(source, target)
+  cmd 'ln', source, target
+end
+
+def _ln(*args, &block) # :nodoc:
+  capture { ln(*args, &block) }
+end
+
+################################## ln_s ##################################
+
+# 
+def ln_s(source, target)
+  cmd 'ln', '-s', source, target
 end
 
 def _ln_s(*args, &block) # :nodoc:
@@ -214,27 +224,35 @@ end
 
 #################################### rm ####################################
 
-# :stopdoc:
-RM_LINE = __LINE__ + 2
-RM = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
-<% only_if _exists?(path) do %>
-rm<%= to_opts(opts) %> "<%= path %>"
-<% end %>
-END_OF_TEMPLATE
-# :startdoc:
-
-# 
-# ==== RM ERB
-#   <% only_if _exists?(path) do %>
-#   rm<%= to_opts(opts) %> "<%= path %>"
-#   <% end %>
-def rm(path, opts={})
-  eval(RM, binding, __FILE__, RM_LINE)
-  nil
+# Unlink a file.
+def rm(path)
+  cmd 'rm', path
 end
 
 def _rm(*args, &block) # :nodoc:
   capture { rm(*args, &block) }
+end
+
+################################## rm_r ##################################
+
+# Unlink a file or directory.
+def rm_r(path)
+  cmd 'rm', '-r', path
+end
+
+def _rm_r(*args, &block) # :nodoc:
+  capture { rm_r(*args, &block) }
+end
+
+################################# rm_rf #################################
+
+# Unlink a file or directory, forcefully.
+def rm_rf(path)
+  cmd 'rm', '-rf', path
+end
+
+def _rm_rf(*args, &block) # :nodoc:
+  capture { rm_rf(*args, &block) }
 end
 
 ############################### section ###############################
