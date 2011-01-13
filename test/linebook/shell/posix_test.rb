@@ -5,7 +5,6 @@ class PosixTest < Test::Unit::TestCase
   include Linecook::Test
   
   def setup_recipe
-    setup_package  # hack
     super.extend Linebook::Shell::Posix
   end
   
