@@ -8,8 +8,15 @@ include Unix
 
 def shebang
   attributes 'linebook/shell'
-  helpers attrs['linebook']['shell']
-  helpers attrs['linebook']['os']
+  
+  if shell = attrs['linebook']['shell']
+    helpers shell
+  end
+  
+  if os = attrs['linebook']['os']
+    helpers os
+  end
+  
   super
 end
 
@@ -161,7 +168,6 @@ RECIPE_LINE = __LINE__ + 2
 RECIPE = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
 "<%= env_path %>" - "<%= shell_path %>" "<%= recipe_path(name) %>" $*
 <% check_status %>
-
 END_OF_TEMPLATE
 # :startdoc:
 

@@ -117,6 +117,37 @@ def _comment(*args, &block) # :nodoc:
   capture { comment(*args, &block) }
 end
 
+################################ export ################################
+
+# :stopdoc:
+EXPORT_LINE = __LINE__ + 2
+EXPORT = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
+<% env.to_a.each do |(key, value)| %>
+export <%= key %>=<%= value %>
+<% end %><% if block_given? %>
+<% indent { yield } %>
+<% unset(*env.collect {|(k,v)| k }) %>
+<% end %>
+END_OF_TEMPLATE
+# :startdoc:
+
+# Exports a list of variables.
+# ==== EXPORT ERB
+#   <% env.to_a.each do |(key, value)| %>
+#   export <%= key %>=<%= value %>
+#   <% end %><% if block_given? %>
+#   <% indent { yield } %>
+#   <% unset(*env.collect {|(k,v)| k }) %>
+#   <% end %>
+def export(env=[])
+  eval(EXPORT, binding, __FILE__, EXPORT_LINE)
+  nil
+end
+
+def _export(*args, &block) # :nodoc:
+  capture { export(*args, &block) }
+end
+
 ############################### heredoc ###############################
 
 # :stopdoc:
@@ -214,6 +245,31 @@ end
 
 def _set_options(*args, &block) # :nodoc:
   capture { set_options(*args, &block) }
+end
+
+################################# unset #################################
+
+# :stopdoc:
+UNSET_LINE = __LINE__ + 2
+UNSET = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
+<% keys.each do |key| %>
+unset <%= key %>
+<% end %>
+END_OF_TEMPLATE
+# :startdoc:
+
+# Unsets a list of variables.
+# ==== UNSET ERB
+#   <% keys.each do |key| %>
+#   unset <%= key %>
+#   <% end %>
+def unset(*keys)
+  eval(UNSET, binding, __FILE__, UNSET_LINE)
+  nil
+end
+
+def _unset(*args, &block) # :nodoc:
+  capture { unset(*args, &block) }
 end
 end
 end

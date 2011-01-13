@@ -257,6 +257,31 @@ def _mv_f(*args, &block) # :nodoc:
   capture { mv_f(*args, &block) }
 end
 
+################################# quiet #################################
+
+# :stopdoc:
+QUIET_LINE = __LINE__ + 2
+QUIET = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
+set +x +v<% if block_given? %>
+<% indent { yield } %>
+set $LINECOOK_OPTIONS > /dev/null<% end %>
+END_OF_TEMPLATE
+# :startdoc:
+
+# 
+# ==== QUIET ERB
+#   set +x +v<% if block_given? %>
+#   <% indent { yield } %>
+#   set $LINECOOK_OPTIONS > /dev/null<% end %>
+def quiet
+  eval(QUIET, binding, __FILE__, QUIET_LINE)
+  nil
+end
+
+def _quiet(*args, &block) # :nodoc:
+  capture { quiet(*args, &block) }
+end
+
 #################################### rm ####################################
 
 # Unlink a file.
@@ -385,6 +410,56 @@ end
 
 def _shebang(*args, &block) # :nodoc:
   capture { shebang(*args, &block) }
+end
+
+############################### verbose ###############################
+
+# :stopdoc:
+VERBOSE_LINE = __LINE__ + 2
+VERBOSE = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
+set -v<% if block_given? %>
+<% indent { yield } %>
+set $LINECOOK_OPTIONS > /dev/null<% end %>
+END_OF_TEMPLATE
+# :startdoc:
+
+# 
+# ==== VERBOSE ERB
+#   set -v<% if block_given? %>
+#   <% indent { yield } %>
+#   set $LINECOOK_OPTIONS > /dev/null<% end %>
+def verbose
+  eval(VERBOSE, binding, __FILE__, VERBOSE_LINE)
+  nil
+end
+
+def _verbose(*args, &block) # :nodoc:
+  capture { verbose(*args, &block) }
+end
+
+################################ xtrace ################################
+
+# :stopdoc:
+XTRACE_LINE = __LINE__ + 2
+XTRACE = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
+set -x<% if block_given? %>
+<% indent { yield } %>
+set $LINECOOK_OPTIONS > /dev/null<% end %>
+END_OF_TEMPLATE
+# :startdoc:
+
+# 
+# ==== XTRACE ERB
+#   set -x<% if block_given? %>
+#   <% indent { yield } %>
+#   set $LINECOOK_OPTIONS > /dev/null<% end %>
+def xtrace
+  eval(XTRACE, binding, __FILE__, XTRACE_LINE)
+  nil
+end
+
+def _xtrace(*args, &block) # :nodoc:
+  capture { xtrace(*args, &block) }
 end
 end
 end

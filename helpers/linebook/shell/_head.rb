@@ -3,7 +3,14 @@ include Unix
 
 def shebang
   attributes 'linebook/shell'
-  helpers attrs['linebook']['shell']
-  helpers attrs['linebook']['os']
+  
+  if shell = attrs['linebook']['shell']
+    helpers shell
+  end
+  
+  if os = attrs['linebook']['os']
+    helpers os
+  end
+  
   super
 end

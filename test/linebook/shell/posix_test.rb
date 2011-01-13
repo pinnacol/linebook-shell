@@ -84,6 +84,39 @@ class PosixTest < Test::Unit::TestCase
   end
   
   #
+  # export test
+  #
+  
+  def test_export_exports_variables
+    assert_recipe %q{
+      export ONE=A
+      export TWO=B
+    } do
+      export [
+        ['ONE', 'A'],
+        ['TWO', 'B']
+      ]
+    end
+  end
+  
+  def test_export_exports_variables_for_the_duration_of_a_block
+    assert_recipe %q{
+      export ONE=A
+      export TWO=B
+        # content
+      unset ONE
+      unset TWO
+    } do
+      export [
+        ['ONE', 'A'],
+        ['TWO', 'B']
+      ] do
+        target.puts "# content"
+      end
+    end
+  end
+  
+  #
   # heredoc test
   #
   
@@ -203,6 +236,19 @@ class PosixTest < Test::Unit::TestCase
       target.puts 'echo b'
       set_options(:verbose => false)
       target.puts 'echo c'
+    end
+  end
+  
+  #
+  # unset test
+  #
+  
+  def test_unset_unsets_a_list_of_variables
+    assert_recipe %q{
+      unset ONE
+      unset TWO
+    } do
+      unset 'ONE', 'TWO'
     end
   end
 end
