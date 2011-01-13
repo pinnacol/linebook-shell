@@ -1,5 +1,11 @@
 == Notes
 Use dev/null on set such that no options will not dump ENV into stdout.
+
+()
+  attributes 'linebook/shell'
+  if shell_module = attrs[:linebook][:shell][:module]
+    helpers shell_module
+  end
 --
 #! <%= shell_path %>
 

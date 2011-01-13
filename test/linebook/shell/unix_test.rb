@@ -4,10 +4,6 @@ require 'linebook/shell/unix'
 class UnixTest < Test::Unit::TestCase
   include Linecook::Test
   
-  def cookbook_dir
-    method_dir
-  end
-  
   def setup_recipe
     super.extend Linebook::Shell::Unix
   end
@@ -95,19 +91,6 @@ class UnixTest < Test::Unit::TestCase
   end
   
   #
-  # recipe test
-  #
-  
-  def test_recipe_evals_recipe_into_recipe_file
-    file('recipes/child.rb') {|io| io << "target << 'content'" }
-    
-    recipe.recipe('child')
-    recipe.close
-    
-    assert_equal 'content', package.content('child')
-  end
-  
-  #
   # rm test
   #
   
@@ -141,60 +124,5 @@ class UnixTest < Test::Unit::TestCase
     } do
       rm_rf 'target'
     end
-  end
-  
-  #
-  # install test
-  #
-  
-  def test_install_copies_source_to_target
-    source = file('source', 'content')
-    target = path('target')
-    
-    script_test('sh $SCRIPT') do
-      install source, target
-    end
-    
-    assert_equal 'content', File.read(source)
-    assert_equal 'content', File.read(target)
-  end
-  
-  def test_multiple_installs_back_up_existing_target
-    a = file('source/a', 'a')
-    b = file('source/b', 'b')
-    c = file('source/c', 'c')
-    
-    target = file('target')
-    
-    script_test('sh $SCRIPT') do
-      install a, target
-      install b, target
-      install c, target
-    end
-    
-    assert_equal 'c', File.read(target)
-    assert_equal 'b', File.read("#{target}.bak")
-  end
-  
-  def test_install_makes_parent_dirs_as_needed
-    source = file('source', 'content')
-    target = path('target/file')
-    
-    script_test('sh $SCRIPT') do
-      install source, target
-    end
-    
-    assert_equal 'content', File.read(target)
-  end
-  
-  def test_install_sets_mode
-    source = file('source', 'content')
-    target = path('target')
-    
-    script_test('sh $SCRIPT') do
-      install source, target, :mode => 600
-    end
-    
-    assert_equal '100600', sprintf("%o", File.stat(target).mode)
   end
 end

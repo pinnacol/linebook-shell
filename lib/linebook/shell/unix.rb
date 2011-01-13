@@ -26,17 +26,6 @@ def close
   
   super
 end
-################################ backup ################################
-
-# Backup a file.
-def backup(path)
-  cp_f path, "#{path}.bak"
-end
-
-def _backup(*args, &block) # :nodoc:
-  capture { backup(*args, &block) }
-end
-
 ################################### cat ###################################
 
 # Executes 'cat' with the sources.
@@ -198,29 +187,6 @@ def _file?(*args, &block) # :nodoc:
   capture { file?(*args, &block) }
 end
 
-############################### install ###############################
-
-# Installs a file
-def install(source, target, options={})
-  only_if _file?(target) do
-    backup target
-  end
-  
-  target_dir = File.dirname(target)
-  not_if _directory?(target_dir) do
-    mkdir_p target_dir
-  end
-  
-  cp source, target
-  chmod options[:mode], target
-  chown options[:user], options[:group], target
-  
-end
-
-def _install(*args, &block) # :nodoc:
-  capture { install(*args, &block) }
-end
-
 #################################### ln ####################################
 
 # 
@@ -263,30 +229,6 @@ end
 
 def _mkdir_p(*args, &block) # :nodoc:
   capture { mkdir_p(*args, &block) }
-end
-
-################################ recipe ################################
-
-# :stopdoc:
-RECIPE_LINE = __LINE__ + 2
-RECIPE = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
-"<%= env_path %>" - "<%= shell_path %>" "<%= recipe_path(name) %>" $*
-<% check_status %>
-
-END_OF_TEMPLATE
-# :startdoc:
-
-# 
-# ==== RECIPE ERB
-#   "<%= env_path %>" - "<%= shell_path %>" "<%= recipe_path(name) %>" $*
-#   <% check_status %>
-def recipe(name)
-  eval(RECIPE, binding, __FILE__, RECIPE_LINE)
-  nil
-end
-
-def _recipe(*args, &block) # :nodoc:
-  capture { recipe(*args, &block) }
 end
 
 #################################### rm ####################################
@@ -383,6 +325,7 @@ END_OF_TEMPLATE
 
 # == Notes
 # Use dev/null on set such that no options will not dump ENV into stdout.
+# 
 # ==== SHEBANG ERB
 #   #! <%= shell_path %>
 #   
@@ -410,7 +353,11 @@ END_OF_TEMPLATE
 #   
 #   set $LINECOOK_OPTIONS > /dev/null
 #   <%= section " #{target_name} " %>
-def shebang
+def shebang()
+  attributes 'linebook/shell'
+  if shell_module = attrs[:linebook][:shell][:module]
+    helpers shell_module
+  end
   eval(SHEBANG, binding, __FILE__, SHEBANG_LINE)
   nil
 end
