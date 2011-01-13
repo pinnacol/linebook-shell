@@ -12,14 +12,14 @@ class OsTest < Test::Unit::TestCase
   end
   
   #
-  # group test
+  # addgroup test
   #
   
-  def test_group_creates_commands_to_add_group
+  def test_addgroup_creates_commands_to_add_group
     assert_recipe %q{
       addgroup "name"
     } do
-      group 'name'
+      addgroup 'name'
     end
   end
   
@@ -44,14 +44,14 @@ class OsTest < Test::Unit::TestCase
   end
   
   #
-  # user test
+  # adduser test
   #
   
-  def test_user_creates_commands_to_add_user
+  def test_adduser_creates_commands_to_add_user
     assert_recipe %q{
       adduser "name"
     } do
-      user 'name'
+      adduser 'name'
     end
   end
 end

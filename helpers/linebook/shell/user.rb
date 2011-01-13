@@ -1,3 +1,5 @@
 (name, options={})
 --
-  raise NotImplementedError
+  not_if _user?(name) do
+    adduser name
+  end

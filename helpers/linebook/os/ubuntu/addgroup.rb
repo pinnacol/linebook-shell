@@ -1,3 +1,3 @@
-(name, options={})
+(name)
 --
   cmd 'addgroup', name

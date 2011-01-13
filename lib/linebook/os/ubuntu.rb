@@ -4,15 +4,26 @@ require 'erb'
 module Linebook
 module Os
 module Ubuntu
-################################# group #################################
+############################## addgroup ##############################
 
 # 
-def group(name, options={})
+def addgroup(name)
   cmd 'addgroup', name
 end
 
-def _group(*args, &block) # :nodoc:
-  capture { group(*args, &block) }
+def _addgroup(*args, &block) # :nodoc:
+  capture { addgroup(*args, &block) }
+end
+
+############################### adduser ###############################
+
+# 
+def adduser(name)
+  cmd 'adduser', name
+end
+
+def _adduser(*args, &block) # :nodoc:
+  capture { adduser(*args, &block) }
 end
 
 ############################### package ###############################
@@ -36,17 +47,6 @@ end
 
 def _package(*args, &block) # :nodoc:
   capture { package(*args, &block) }
-end
-
-################################## user ##################################
-
-# 
-def user(name, options={})
-  cmd 'adduser', name
-end
-
-def _user(*args, &block) # :nodoc:
-  capture { user(*args, &block) }
 end
 end
 end

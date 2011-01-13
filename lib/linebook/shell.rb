@@ -89,11 +89,34 @@ end
 
 # 
 def group(name, options={})
-  raise NotImplementedError
+  not_if _group?(name) do
+    addgroup name
+  end
 end
 
 def _group(*args, &block) # :nodoc:
   capture { group(*args, &block) }
+end
+
+########################### group_check ###########################
+
+# :stopdoc:
+GROUP_CHECK_LINE = __LINE__ + 2
+GROUP_CHECK = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
+grep "^<%= name %>:" /etc/group
+END_OF_TEMPLATE
+# :startdoc:
+
+# 
+# ==== GROUP_CHECK ERB
+#   grep "^<%= name %>:" /etc/group
+def group?(name)
+  eval(GROUP_CHECK, binding, __FILE__, GROUP_CHECK_LINE)
+  nil
+end
+
+def _group?(*args, &block) # :nodoc:
+  capture { group?(*args, &block) }
 end
 
 ############################### install ###############################
@@ -174,11 +197,34 @@ end
 
 # 
 def user(name, options={})
-  raise NotImplementedError
+  not_if _user?(name) do
+    adduser name
+  end
 end
 
 def _user(*args, &block) # :nodoc:
   capture { user(*args, &block) }
+end
+
+############################ user_check ############################
+
+# :stopdoc:
+USER_CHECK_LINE = __LINE__ + 2
+USER_CHECK = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
+grep "^<%= name %>:" /etc/passwd
+END_OF_TEMPLATE
+# :startdoc:
+
+# 
+# ==== USER_CHECK ERB
+#   grep "^<%= name %>:" /etc/passwd
+def user?(name)
+  eval(USER_CHECK, binding, __FILE__, USER_CHECK_LINE)
+  nil
+end
+
+def _user?(*args, &block) # :nodoc:
+  capture { user?(*args, &block) }
 end
 end
 end
