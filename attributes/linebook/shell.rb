@@ -1,2 +1,2 @@
-attrs[:linebook][:shell][:module] = 'linebook/shell/bash'
-attrs[:linebook][:os][:module] = 'linebook/os/ubuntu'
+attrs['linebook']['shell'] = 'linebook/shell/bash'
+attrs['linebook']['os'] = 'linebook/os/ubuntu'

@@ -378,10 +378,6 @@ END_OF_TEMPLATE
 #   set $LINECOOK_OPTIONS > /dev/null
 #   <%= section " #{target_name} " %>
 def shebang()
-  attributes 'linebook/shell'
-  if shell_module = attrs[:linebook][:shell][:module]
-    helpers shell_module
-  end
   @target_format = '$LINECOOK_DIR/%s'
   eval(SHEBANG, binding, __FILE__, SHEBANG_LINE)
   nil

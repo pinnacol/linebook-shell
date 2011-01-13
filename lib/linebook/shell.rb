@@ -8,8 +8,8 @@ include Unix
 
 def shebang
   attributes 'linebook/shell'
-  helpers attrs[:linebook][:shell][:module]
-  helpers attrs[:linebook][:os][:module]
+  helpers attrs['linebook']['shell']
+  helpers attrs['linebook']['os']
   super
 end
 
