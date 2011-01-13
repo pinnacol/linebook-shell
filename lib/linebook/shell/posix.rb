@@ -86,6 +86,7 @@ END_OF_TEMPLATE
 #   
 #   <% check_status %>
 def cmd(cmd, *args)
+  args.compact!
   args = args.collect! {|arg| arg[0] == ?- ? arg : quote(arg) }
   args.unshift(cmd)
   eval(CMD, binding, __FILE__, CMD_LINE)
