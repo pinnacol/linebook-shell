@@ -18,6 +18,7 @@ class PosixTest < Test::Unit::TestCase
     assert_recipe %Q{
       function check_status { if [ $1 -ne $2 ]; then echo "[$2] $0:$3"; exit $2; fi }
       check_status 0 $? $LINENO
+      
     } do
       check_status_function
       check_status

@@ -75,8 +75,31 @@ end
 
 ################################## file ##################################
 
+# Installs a file from the package.
+def file(target, options={})
+  source = file_path(options[:source] || File.basename(target))
+  install(source, target, options)
+end
+
+def _file(*args, &block) # :nodoc:
+  capture { file(*args, &block) }
+end
+
+################################# group #################################
+
+# 
+def group(name, options={})
+  raise NotImplementedError
+end
+
+def _group(*args, &block) # :nodoc:
+  capture { group(*args, &block) }
+end
+
+############################### install ###############################
+
 # Installs a file
-def file(source, target, options={})
+def install(source, target, options={})
   nest_opts(options[:backup], :mv => true) do |opts|
     only_if _file?(target) do
       backup target, opts
@@ -93,19 +116,8 @@ def file(source, target, options={})
 
 end
 
-def _file(*args, &block) # :nodoc:
-  capture { file(*args, &block) }
-end
-
-################################# group #################################
-
-# 
-def group(name, options={})
-  raise NotImplementedError
-end
-
-def _group(*args, &block) # :nodoc:
-  capture { group(*args, &block) }
+def _install(*args, &block) # :nodoc:
+  capture { install(*args, &block) }
 end
 
 ############################### package ###############################
@@ -141,6 +153,21 @@ end
 
 def _recipe(*args, &block) # :nodoc:
   capture { recipe(*args, &block) }
+end
+
+############################## template ##############################
+
+# Installs a template from the package.
+def template(target, options={})
+  template_name = options[:source] || File.basename(target)
+  locals = options[:locals] || {}
+  
+  source = template_path(template_name, locals)
+  install(source, target, options)
+end
+
+def _template(*args, &block) # :nodoc:
+  capture { template(*args, &block) }
 end
 
 ################################## user ##################################

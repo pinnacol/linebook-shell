@@ -13,6 +13,16 @@ class ShellTest < Test::Unit::TestCase
     super.extend Linebook::Shell
   end
   
+  # patch
+  def script_test(cmd, variable='SCRIPT', &block)
+    path = script(&block)
+    Dir.chdir(File.join(method_dir, 'packages')) do
+      with_env variable => path do
+        sh_test(cmd)
+      end
+    end
+  end
+  
   #
   # backup test
   #
@@ -78,69 +88,121 @@ class ShellTest < Test::Unit::TestCase
   # file test
   #
   
-  def test_file_copies_source_to_target
+  def test_file_installs_the_corresponding_package_file_to_target
+    file('files/file.txt', 'content')
+    target = path('target/file.txt')
+    
+    script_test('sh $SCRIPT') do
+      file target
+    end
+    
+    assert_equal 'content', File.read(target)
+  end
+  
+  def test_file_can_specify_an_alternate_source
+    file('files/source.txt', 'content')
+    target = path('target.txt')
+    
+    script_test('sh $SCRIPT') do
+      file target, :source => 'source.txt'
+    end
+    
+    assert_equal 'content', File.read(target)
+  end
+  
+  #
+  # template test
+  #
+  
+  def test_template_builds_and_installs_the_corresponding_template_to_target
+    file('templates/file.txt.erb', 'got <%= key %>')
+    target = path('target/file.txt')
+    
+    script_test('sh $SCRIPT') do
+      template target, :locals => {:key => 'value'}
+    end
+    
+    assert_equal 'got value', File.read(target)
+  end
+  
+  def test_template_can_specify_an_alternate_source
+    file('templates/source.txt.erb', 'got <%= key %>')
+    target = path('target.txt')
+    
+    script_test('sh $SCRIPT') do
+      template target, :source => 'source.txt', :locals => {:key => 'value'}
+    end
+    
+    assert_equal 'got value', File.read(target)
+  end
+  
+  #
+  # install test
+  #
+  
+  def test_install_copies_source_to_target
     source = file('source', 'content')
     target = path('target')
     
     script_test('sh $SCRIPT') do
-      file source, target
+      install source, target
     end
     
     assert_equal 'content', File.read(source)
     assert_equal 'content', File.read(target)
   end
   
-  def test_file_backs_up_existing_target
+  def test_install_backs_up_existing_target
     source = file('source', 'new')
     target = file('target', 'old')
     
     script_test('sh $SCRIPT') do
-      file source, target
+      install source, target
     end
     
     assert_equal 'new', File.read(target)
     assert_equal 'old', File.read("#{target}.bak")
   end
   
-  def test_file_can_turn_off_backup
+  def test_install_can_turn_off_backup
     source = file('source', 'new')
     target = file('target', 'old')
     
     script_test('sh $SCRIPT') do
-      file source, target, :backup => false
+      install source, target, :backup => false
     end
     
     assert_equal false, File.exists?("#{target}.bak")
   end
   
-  def test_file_makes_parent_dirs_as_needed
+  def test_install_makes_parent_dirs_as_needed
     source = file('source', 'content')
     target = path('target/file')
     
     script_test('sh $SCRIPT') do
-      file source, target
+      install source, target
     end
     
     assert_equal 'content', File.read(target)
   end
   
-  def test_file_allows_passing_options_to_directory
+  def test_install_allows_passing_options_to_directory
     source = file('source', 'content')
     target = path('target/file')
     
     script_test('sh $SCRIPT') do
-      file source, target, :directory => {:mode => 700}
+      install source, target, :directory => {:mode => 700}
     end
     
     assert_equal '40700', sprintf("%o", File.stat(path('target')).mode)
   end
   
-  def test_file_sets_mode
+  def test_install_sets_mode
     source = file('source', 'content')
     target = path('target')
     
     script_test('sh $SCRIPT') do
-      file source, target, :mode => 600
+      install source, target, :mode => 600
     end
     
     assert_equal '100600', sprintf("%o", File.stat(target).mode)

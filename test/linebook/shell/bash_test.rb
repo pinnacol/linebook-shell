@@ -17,7 +17,7 @@ class BashTest < Test::Unit::TestCase
   
   def test_su_wraps_block_content_in_a_recipe
     assert_recipe(%{
-      su root "$LINECOOK_DIR/recipe.d/root"
+      su root "recipe.d/root"
       
     }){ 
       su('root') do 
@@ -31,7 +31,7 @@ class BashTest < Test::Unit::TestCase
   def test_nested_su
     assert_recipe %q{
       # +A
-      su a "$LINECOOK_DIR/recipe.d/a"
+      su a "recipe.d/a"
       
       # -A
     } do
@@ -53,14 +53,14 @@ class BashTest < Test::Unit::TestCase
     
     assert_output_equal %q{
       # +B
-      su b "$LINECOOK_DIR/recipe.d/b"
+      su b "recipe.d/b"
       
       # -B
     }, package.content('recipe.d/a')
     
     assert_output_equal %q{
       # +C
-      su c "$LINECOOK_DIR/recipe.d/c"
+      su c "recipe.d/c"
       
       # -C
     }, package.content('recipe.d/b')

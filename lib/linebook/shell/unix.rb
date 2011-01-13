@@ -15,8 +15,12 @@ def env_path
   @env_path ||= '/usr/bin/env'
 end
 
+def target_format
+  "%s"
+end
+
 def target_path(source_path)
-  '$LINECOOK_DIR/%s' % super(source_path)
+  target_format % super(source_path)
 end
 
 def close
@@ -316,7 +320,6 @@ end
 SHEBANG_LINE = __LINE__ + 2
 SHEBANG = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
 #! <%= shell_path %>
-
 <%= section %>
 <%= check_status_function %>
 
@@ -350,7 +353,6 @@ END_OF_TEMPLATE
 # 
 # ==== SHEBANG ERB
 #   #! <%= shell_path %>
-#   
 #   <%= section %>
 #   <%= check_status_function %>
 #   
@@ -380,6 +382,7 @@ def shebang()
   if shell_module = attrs[:linebook][:shell][:module]
     helpers shell_module
   end
+  @target_format = '$LINECOOK_DIR/%s'
   eval(SHEBANG, binding, __FILE__, SHEBANG_LINE)
   nil
 end

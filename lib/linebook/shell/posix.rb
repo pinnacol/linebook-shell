@@ -24,6 +24,7 @@ CHECK_STATUS_LINE = __LINE__ + 2
 CHECK_STATUS = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
 <% if @check_status %>
 check_status <%= status %> $? $LINENO
+
 <% end %>
 END_OF_TEMPLATE
 # :startdoc:
@@ -34,6 +35,7 @@ END_OF_TEMPLATE
 # ==== CHECK_STATUS ERB
 #   <% if @check_status %>
 #   check_status <%= status %> $? $LINENO
+#   
 #   <% end %>
 def check_status(status=0)
   @check_status ||= false
@@ -73,14 +75,15 @@ end
 CMD_LINE = __LINE__ + 2
 CMD = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
 <%= args.join(' ') %>
-<% check_status %>
 
+<% check_status %>
 END_OF_TEMPLATE
 # :startdoc:
 
 # Execute a command and check the output status.
 # ==== CMD ERB
 #   <%= args.join(' ') %>
+#   
 #   <% check_status %>
 def cmd(cmd, *args)
   args = args.collect! {|arg| arg[0] == ?- ? arg : quote(arg) }

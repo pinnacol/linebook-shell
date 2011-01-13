@@ -6,9 +6,9 @@ Use dev/null on set such that no options will not dump ENV into stdout.
   if shell_module = attrs[:linebook][:shell][:module]
     helpers shell_module
   end
+  @target_format = '$LINECOOK_DIR/%s'
 --
 #! <%= shell_path %>
-
 <%= section %>
 <%= check_status_function %>
 
