@@ -14,8 +14,16 @@ end
 ################################ backup ################################
 
 # Backup a file.
-def backup(path)
-  cp_f path, "#{path}.bak"
+def backup(path, options={})
+  backup_path = "#{path}.bak"
+  if options[:mv]
+    mv_f path, backup_path
+  else
+    cp_f path, backup_path
+  end
+  
+  chmod 644, backup_path
+
 end
 
 def _backup(*args, &block) # :nodoc:
@@ -43,7 +51,7 @@ end
 # needed, and backing up the file if it already exists.
 def prepare(target)
   only_if _file?(target) do
-    backup target
+    backup target, :mv => true
   end
   
   target_dir = File.dirname(target)

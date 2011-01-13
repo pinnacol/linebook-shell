@@ -231,6 +231,28 @@ def _mkdir_p(*args, &block) # :nodoc:
   capture { mkdir_p(*args, &block) }
 end
 
+#################################### mv ####################################
+
+# 
+def mv(source, target)
+  cmd 'mv', source, target
+end
+
+def _mv(*args, &block) # :nodoc:
+  capture { mv(*args, &block) }
+end
+
+################################## mv_f ##################################
+
+# 
+def mv_f(source, target)
+  cmd 'mv', '-f', source, target
+end
+
+def _mv_f(*args, &block) # :nodoc:
+  capture { mv_f(*args, &block) }
+end
+
 #################################### rm ####################################
 
 # Unlink a file.

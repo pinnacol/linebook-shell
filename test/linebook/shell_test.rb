@@ -14,6 +14,46 @@ class ShellTest < Test::Unit::TestCase
   end
   
   #
+  # backup test
+  #
+  
+  def test_backup_set_backup_permissions_to_644
+    target = file('target', 'content')
+    File.chmod(0754, target)
+    
+    script_test('sh $SCRIPT') do
+      backup target
+    end
+    
+    assert_equal '100644', sprintf("%o", File.stat("#{target}.bak").mode)
+  end
+  
+  #
+  # prepare test
+  #
+  
+  def test_prepare_removes_and_backs_up_existing_target
+    target = file('target', 'content')
+    
+    script_test('sh $SCRIPT') do
+      prepare target
+    end
+    
+    assert_equal false, File.exists?(target)
+    assert_equal 'content', File.read("#{target}.bak")
+  end
+  
+  def test_prepare_makes_parent_dirs_as_needed
+    target = path('target/file')
+    
+    script_test('sh $SCRIPT') do
+      prepare target
+    end
+    
+    assert_equal true, File.directory?(path('target'))
+  end
+  
+  #
   # install test
   #
   
