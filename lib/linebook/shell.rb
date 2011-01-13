@@ -77,8 +77,10 @@ end
 
 # Installs a file
 def file(source, target, options={})
-  only_if _file?(target) do
-    backup target, :mv => true
+  nest_opts(options[:backup], :mv => true) do |opts|
+    only_if _file?(target) do
+      backup target, opts
+    end
   end
   
   directory File.dirname(target)

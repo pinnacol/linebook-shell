@@ -28,6 +28,17 @@ class ShellTest < Test::Unit::TestCase
     assert_equal '100644', sprintf("%o", File.stat("#{target}.bak").mode)
   end
   
+  def test_backup_will_copy_if_specified
+    target = file('target', 'content')
+    
+    script_test('sh $SCRIPT') do
+      backup target, :mv => false
+    end
+    
+    assert_equal 'content', File.read(target)
+    assert_equal 'content', File.read("#{target}.bak")
+  end
+  
   #
   # directory test
   #
@@ -89,6 +100,17 @@ class ShellTest < Test::Unit::TestCase
     
     assert_equal 'new', File.read(target)
     assert_equal 'old', File.read("#{target}.bak")
+  end
+  
+  def test_file_can_turn_off_backup
+    source = file('source', 'new')
+    target = file('target', 'old')
+    
+    script_test('sh $SCRIPT') do
+      file source, target, :backup => false
+    end
+    
+    assert_equal false, File.exists?("#{target}.bak")
   end
   
   def test_file_makes_parent_dirs_as_needed
