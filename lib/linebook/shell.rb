@@ -9,8 +9,10 @@ include Unix
 def shebang
   attributes 'linebook/shell'
   helpers attrs[:linebook][:shell][:module]
+  helpers attrs[:linebook][:os][:module]
   super
 end
+
 ################################ backup ################################
 
 # Backup a file.
@@ -30,38 +32,86 @@ def _backup(*args, &block) # :nodoc:
   capture { backup(*args, &block) }
 end
 
-############################### install ###############################
+############################# directory #############################
 
-# Installs a file
-def install(source, target, options={})
-  prepare target
-  cp source, target
+# 
+def directory(target, options={})
+  not_if _directory?(target) do 
+    mkdir_p target
+  end 
   chmod options[:mode], target
   chown options[:user], options[:group], target
-  
 end
 
-def _install(*args, &block) # :nodoc:
-  capture { install(*args, &block) }
+def _directory(*args, &block) # :nodoc:
+  capture { directory(*args, &block) }
 end
 
-############################### prepare ###############################
+############################### execute ###############################
 
-# Prepares a file location to recieve a new file by making parent directories as
-# needed, and backing up the file if it already exists.
-def prepare(target)
+# :stopdoc:
+EXECUTE_LINE = __LINE__ + 2
+EXECUTE = "self." + ERB.new(<<'END_OF_TEMPLATE', nil, '<>').src
+<%= cmd %>
+
+<% check_status %>
+
+END_OF_TEMPLATE
+# :startdoc:
+
+# 
+# ==== EXECUTE ERB
+#   <%= cmd %>
+#   
+#   <% check_status %>
+def execute(cmd)
+  eval(EXECUTE, binding, __FILE__, EXECUTE_LINE)
+  nil
+end
+
+def _execute(*args, &block) # :nodoc:
+  capture { execute(*args, &block) }
+end
+
+################################## file ##################################
+
+# Installs a file
+def file(source, target, options={})
   only_if _file?(target) do
     backup target, :mv => true
   end
   
-  target_dir = File.dirname(target)
-  not_if _directory?(target_dir) do
-    mkdir_p target_dir
-  end
+  directory File.dirname(target)
+  cp source, target
+  chmod options[:mode], target
+  chown options[:user], options[:group], target
+
 end
 
-def _prepare(*args, &block) # :nodoc:
-  capture { prepare(*args, &block) }
+def _file(*args, &block) # :nodoc:
+  capture { file(*args, &block) }
+end
+
+################################# group #################################
+
+# 
+def group(name, options={})
+  raise NotImplementedError
+end
+
+def _group(*args, &block) # :nodoc:
+  capture { group(*args, &block) }
+end
+
+############################### package ###############################
+
+# 
+def package(name, version=nil)
+  raise NotImplementedError
+end
+
+def _package(*args, &block) # :nodoc:
+  capture { package(*args, &block) }
 end
 
 ################################ recipe ################################
@@ -86,6 +136,17 @@ end
 
 def _recipe(*args, &block) # :nodoc:
   capture { recipe(*args, &block) }
+end
+
+################################## user ##################################
+
+# 
+def user(name, options={})
+  raise NotImplementedError
+end
+
+def _user(*args, &block) # :nodoc:
+  capture { user(*args, &block) }
 end
 end
 end
