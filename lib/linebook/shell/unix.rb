@@ -26,6 +26,17 @@ def close
   
   super
 end
+################################ backup ################################
+
+# Backup a file.
+def backup(path)
+  cp_f path, "#{path}.bak"
+end
+
+def _backup(*args, &block) # :nodoc:
+  capture { backup(*args, &block) }
+end
+
 ################################### cat ###################################
 
 # Executes 'cat' with the sources.
@@ -102,6 +113,17 @@ def _cp(*args, &block) # :nodoc:
   capture { cp(*args, &block) }
 end
 
+################################## cp_f ##################################
+
+# 
+def cp_f(source, target)
+  cmd 'cp', '-f', source, target
+end
+
+def _cp_f(*args, &block) # :nodoc:
+  capture { cp_f(*args, &block) }
+end
+
 ################################## cp_r ##################################
 
 # 
@@ -176,6 +198,29 @@ def _file?(*args, &block) # :nodoc:
   capture { file?(*args, &block) }
 end
 
+############################### install ###############################
+
+# Installs a file
+def install(source, target, options={})
+  only_if _file?(target) do
+    backup target
+  end
+  
+  target_dir = File.dirname(target)
+  not_if _directory?(target_dir) do
+    mkdir_p target_dir
+  end
+  
+  cp source, target
+  chmod options[:mode], target
+  chown options[:user], options[:group], target
+  
+end
+
+def _install(*args, &block) # :nodoc:
+  capture { install(*args, &block) }
+end
+
 #################################### ln ####################################
 
 # 
@@ -196,6 +241,28 @@ end
 
 def _ln_s(*args, &block) # :nodoc:
   capture { ln_s(*args, &block) }
+end
+
+################################# mkdir #################################
+
+# Make a directory
+def mkdir(path)
+  cmd 'mkdir', path
+end
+
+def _mkdir(*args, &block) # :nodoc:
+  capture { mkdir(*args, &block) }
+end
+
+############################### mkdir_p ###############################
+
+# Make a directory, and parent directories as needed.
+def mkdir_p(path)
+  cmd 'mkdir', '-p', path
+end
+
+def _mkdir_p(*args, &block) # :nodoc:
+  capture { mkdir_p(*args, &block) }
 end
 
 ################################ recipe ################################
