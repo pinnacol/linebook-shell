@@ -13,16 +13,6 @@ class ShellTest < Test::Unit::TestCase
     super.extend Linebook::Shell
   end
   
-  # patch
-  def script_test(cmd, variable='SCRIPT', &block)
-    path = script(&block)
-    Dir.chdir(File.join(method_dir, 'packages')) do
-      with_env variable => path do
-        sh_test(cmd)
-      end
-    end
-  end
-  
   #
   # backup test
   #
