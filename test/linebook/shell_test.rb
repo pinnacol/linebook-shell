@@ -124,6 +124,17 @@ class ShellTest < Test::Unit::TestCase
     assert_equal 'content', File.read(target)
   end
   
+  def test_file_allows_passing_options_to_directory
+    source = file('source', 'content')
+    target = path('target/file')
+    
+    script_test('sh $SCRIPT') do
+      file source, target, :directory => {:mode => 700}
+    end
+    
+    assert_equal '40700', sprintf("%o", File.stat(path('target')).mode)
+  end
+  
   def test_file_sets_mode
     source = file('source', 'content')
     target = path('target')
